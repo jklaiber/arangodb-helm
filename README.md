@@ -1,0 +1,104 @@
+<!--- app-name: ArangoDB -->
+
+# Helm Chart for ArangoDB
+
+Helm Chart is inspired from the Bitnami Charts.
+                           
+## Parameters
+
+### Global parameters
+
+| Name                      | Description                                     | Value |
+| ------------------------- | ----------------------------------------------- | ----- |
+| `global.imageRegistry`    | Global Docker image registry                    | `""`  |
+| `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
+| `global.storageClass`     | Global storage class for dynamic provisioning   | `""`  |
+
+
+### Common parameters
+
+| Name                     | Description                                                                                           | Value           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------- | --------------- |
+| `kubeVersion`            | Force target Kubernetes version (using Helm capabilities if not set)                                  | `""`            |
+| `nameOverride`           | String to partially override arangodb.fullname template with a string (will prepend the release name) | `""`            |
+| `fullnameOverride`       | String to fully override arangodb.fullname template with a string                                     | `""`            |
+| `clusterDomain`          | Default Kubernetes cluster domain                                                                     | `cluster.local` |
+| `commonAnnotations`      | Annotations to add to all deployed objects                                                            | `{}`            |
+| `commonLabels`           | Labels to add to all deployed objects                                                                 | `{}`            |
+| `extraDeploy`            | Array of extra objects to deploy with the release                                                     | `[]`            |
+
+
+### ArangoDB parameters
+
+| Name                                             | Description                                                                                                                                                                                                                                                          | Value                 |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| `image.registry`                                 | ArangoDB image registry                                                                                                                                                                                                                                       | `docker.io`           |
+| `image.repository`                               | ArangoDB image repository                                                                                                                                                                                                                                     | `bitnami/arangodb`    |
+| `image.tag`                                      | ArangoDB image tag (immutable tags are recommended)                                                                                                                                                                                                           | `2.2.0-debian-10-r30` |
+| `image.pullPolicy`                               | ArangoDB image pull policy                                                                                                                                                                                                                                    | `IfNotPresent`        |
+| `image.pullSecrets`                              | Specify docker-registry secret names as an array                                                                                                                                                                                                                     | `[]`                  |
+| `image.debug`                                    | Specify if debug logs should be enabled                                                                                                                                                                                                                              | `false`               |
+| `auth.enabled`                                   | Enable/disable authentication (Variable to keep compatibility with ArangoDB v1, in v2 it will be ignored)                                                                                                                                                     | `true`                |
+| `auth.usePasswordFiles`                          | Whether to use files to provide secrets instead of env vars.                                                                                                                                                                                                         | `false`               |
+| `auth.admin.username`                            | ArangoDB admin user name                                                                                                                                                                                                                                      | `root`               |
+| `auth.admin.password`                            | ArangoDB admin user's password                                                                                                                                                                                                                                | `""`                  |
+| `arangodb.podAffinityPreset`                     | ArangoDB Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                                                                                                                                                  | `""`                  |
+| `arangodb.podAntiAffinityPreset`                 | ArangoDB Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                                                                                                                                             | `soft`                |
+| `arangodb.nodeAffinityPreset.type`               | ArangoDB Node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                                                                                                                                            | `""`                  |
+| `arangodb.nodeAffinityPreset.key`                | ArangoDB Node label key to match Ignored if `affinity` is set.                                                                                                                                                                                                | `""`                  |
+| `arangodb.nodeAffinityPreset.values`             | ArangoDB Node label values to match. Ignored if `affinity` is set.                                                                                                                                                                                            | `[]`                  |
+| `arangodb.affinity`                              | ArangoDB Affinity for pod assignment                                                                                                                                                                                                                          | `{}`                  |
+| `arangodb.nodeSelector`                          | ArangoDB Node labels for pod assignment                                                                                                                                                                                                                       | `{}`                  |
+| `arangodb.tolerations`                           | ArangoDB Tolerations for pod assignment                                                                                                                                                                                                                       | `[]`                  |
+| `arangodb.podAnnotations`                        | Annotations for ArangoDB pods                                                                                                                                                                                                                                 | `{}`                  |
+| `arangodb.podLabels`                             | Extra labels for ArangoDB pods                                                                                                                                                                                                                                | `{}`                  |
+| `arangodb.hostAliases`                           | ArangoDB pods host aliases                                                                                                                                                                                                                                    | `[]`                  |
+| `arangodb.updateStrategy.type`                   | ArangoDB statefulset/deployment strategy type                                                                                                                                                                                                                 | `RollingUpdate`       |
+| `arangodb.priorityClassName`                     | ArangoDB pods' priorityClassName                                                                                                                                                                                                                              | `""`                  |
+| `arangodb.podManagementPolicy`                   | podManagementPolicy to manage scaling operation of ArangoDB pods                                                                                                                                                                                              | `OrderedReady`        |
+| `arangodb.resources.limits`                      | The resources limits for the container                                                                                                                                                                                                                               | `{}`                  |
+| `arangodb.resources.requests`                    | The requested resources for the container                                                                                                                                                                                                                            | `{}`                  |
+| `arangodb.command`                               | Override default container command (useful when using custom images)                                                                                                                                                                                                 | `[]`                  |
+| `arangodb.args`                                  | Override default container args (useful when using custom images)                                                                                                                                                                                                    | `[]`                  |
+| `arangodb.extraVolumes`                          | Array of extra volumes to be added to the deployment (evaluated as template). Requires setting extraVolumeMounts                                                                                                                                                     | `[]`                  |
+| `arangodb.extraVolumeMounts`                     | Array of extra volume mounts to be added to the container (evaluated as template). Normally used with extraVolumes.                                                                                                                                                  | `[]`                  |
+| `arangodb.containerPorts.http`                   | ArangoDB container HTTP port                                                                                                                                                                                                                                  | `8086`                |
+| `arangodb.initContainers`                        | Add additional init containers to the ArangoDB pod(s)                                                                                                                                                                                                         | `[]`                  |
+| `arangodb.service.type`                          | Kubernetes service type (`ClusterIP`, `NodePort` or `LoadBalancer`)                                                                                                                                                                                                  | `ClusterIP`           |
+| `arangodb.service.ports.http`                    | ArangoDB HTTP port                                                                                                                                                                                                                                            | `8086`                |
+| `arangodb.service.nodePorts`                     | Specify the nodePort(s) value for the LoadBalancer and NodePort service types.                                                                                                                                                                                       | `{}`                  |
+| `arangodb.service.loadBalancerIP`                | loadBalancerIP if service type is `LoadBalancer`                                                                                                                                                                                                                     | `""`                  |
+| `arangodb.service.loadBalancerSourceRanges`      | Address that are allowed when service is LoadBalancer                                                                                                                                                                                                                | `[]`                  |
+| `arangodb.service.clusterIP`                     | Static clusterIP or None for headless services                                                                                                                                                                                                                       | `""`                  |
+| `arangodb.service.externalTrafficPolicy`         | ArangoDB service external traffic policy                                                                                                                                                                                                                      | `Cluster`             |
+| `arangodb.service.extraPorts`                    | Extra ports to expose (normally used with the `sidecar` value)                                                                                                                                                                                                       | `[]`                  |
+| `arangodb.service.annotations`                   | Annotations for ArangoDB service                                                                                                                                                                                                                              | `{}`                  |
+| `arangodb.service.sessionAffinity`               | Session Affinity for Kubernetes service, can be "None" or "ClientIP"                                                                                                                                                                                                 | `None`                |
+| `arangodb.service.sessionAffinityConfig`         | Additional settings for the sessionAffinity                                                                                                                                                                                                                          | `{}`                  |
+
+
+### Exposing parameters
+
+| Name                       | Description                                                                                                                      | Value                    |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `ingress.enabled`          | Enable ingress controller resource                                                                                               | `false`                  |
+| `ingress.tls`              | Create TLS Secret                                                                                                                | `false`                  |
+| `ingress.pathType`         | Ingress path type                                                                                                                | `ImplementationSpecific` |
+| `ingress.apiVersion`       | Force Ingress API version (automatically detected if not set)                                                                    | `""`                     |
+| `ingress.hostname`         | Default host for the ingress resource (evaluated as template)                                                                    | `arangodb.local`         |
+| `ingress.path`             | Ingress path*' in order to use this                                                                                              | `/`                      |
+| `ingress.annotations`      | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. | `{}`                     |
+| `ingress.extraHosts`       | The list of additional hostnames to be covered with this ingress record.                                                         | `[]`                     |
+| `ingress.extraPaths`       | Additional arbitrary path/backend objects                                                                                        | `[]`                     |
+| `ingress.extraTls`         | The tls configuration for additional hostnames to be covered with this ingress record.                                           | `[]`                     |
+| `ingress.secrets`          | If you're providing your own certificates, please use this to add the certificates as secrets                                    | `[]`                     |
+| `ingress.ingressClassName` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                    | `""`                     |
+| `ingress.extraRules`       | Additional rules to be covered with this ingress record                                                                          | `[]`                     |
+
+
+### Configure the way how to expose ArangoDB
+
+- **Ingress**: The ingress controller must be installed in the Kubernetes cluster. Set `ingress.enabled=true` to expose ArangoDB through Ingress.
+- **ClusterIP**: Exposes the service on a cluster-internal IP. Choosing this value makes the service only reachable from within the cluster. Set `arangodb.service.type=ClusterIP` to choose this service type.
+- **NodePort**: Exposes the service on each Node's IP at a static port (the NodePort). You'll be able to contact the NodePort service, from outside the cluster, by requesting `NodeIP:NodePort`. Set `arangodb.service.type=NodePort` to choose this service type.
+- **LoadBalancer**: Exposes the service externally using a cloud provider's load balancer. Set `arangodb.service.type=LoadBalancer` to choose this service type.

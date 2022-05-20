@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: arangodb
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.arangodb.service.annotations .Values.commonAnnotations }}
+  annotations:
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.commonAnnotations "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.arangodb.service.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.arangodb.service.annotations "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.arangodb.service.type }}
+  {{- if and .Values.arangodb.service.clusterIP (eq .Values.arangodb.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.arangodb.service.clusterIP }}
+  {{- end }}
+  {{- if (or (eq .Values.arangodb.service.type "LoadBalancer") (eq .Values.arangodb.service.type "NodePort")) }}
+  externalTrafficPolicy: {{ .Values.arangodb.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if eq .Values.arangodb.service.type "LoadBalancer" }}
+  loadBalancerSourceRanges: {{ .Values.arangodb.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if (and (eq .Values.arangodb.service.type "LoadBalancer") (not (empty .Values.arangodb.service.loadBalancerIP))) }}
+  loadBalancerIP: {{ .Values.arangodb.service.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.arangodb.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.arangodb.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.arangodb.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  ports:
+    - port: {{ coalesce .Values.arangodb.service.ports.http .Values.arangodb.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      {{- if (and (or (eq .Values.arangodb.service.type "NodePort") (eq .Values.arangodb.service.type "LoadBalancer")) (not (empty .Values.arangodb.service.nodePorts.http))) }}
+      nodePort: {{ .Values.arangodb.service.nodePorts.http }}
+      {{- else if eq .Values.arangodb.service.type "ClusterIP" }}
+      nodePort: null
+      {{- end }}
+    {{- if .Values.arangodb.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: arangodb

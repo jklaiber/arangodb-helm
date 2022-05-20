@@ -1,0 +1,420 @@
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.storageClass Global storage class for dynamic provisioning
+##
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  storageClass: ""
+
+## @section Common parameters
+
+## @param kubeVersion Force target Kubernetes version (using Helm capabilities if not set)
+##
+kubeVersion: ""
+## @param nameOverride String to partially override arangodb.fullname template with a string (will prepend the release name)
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override arangodb.fullname template with a string
+##
+fullnameOverride: ""
+## @param clusterDomain Default Kubernetes cluster domain
+##
+clusterDomain: cluster.local
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param extraDeploy Array of extra objects to deploy with the release
+##
+extraDeploy: []
+
+## @section arangodb&trade; parameters
+
+## @param image.registry arangodb&trade; image registry
+## @param image.repository arangodb&trade; image repository
+## @param image.tag arangodb&trade; image tag (immutable tags are recommended)
+## @param image.pullPolicy arangodb&trade; image pull policy
+## @param image.pullSecrets Specify docker-registry secret names as an array
+## @param image.debug Specify if debug logs should be enabled
+##
+image:
+  registry: docker.io
+  repository: arangodb
+  tag: 3.9
+  ## Specify a imagePullPolicy. Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## e.g:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: []
+  ## Set to true if you would like to see extra information on logs
+  ##
+  debug: false
+
+## Authentication parameters
+##
+auth:
+  ## @param auth.enabled Enable/disable authentication (Variable to keep compatibility with arangodb&trade; v1, in v2 it will be ignored)
+  ##
+  enabled: true
+  ## @param auth.usePasswordFiles Whether to use files to provide secrets instead of env vars.
+  ##
+  usePasswordFiles: false
+  ## arangodb&trade; admin credentials
+  ##
+  admin:
+    ## @param auth.admin.username arangodb&trade; admin user name
+    ##
+    username: root
+    ## @param auth.admin.password arangodb&trade; admin user's password
+    ##
+    password: ""
+  ## @param auth.existingSecret Name of existing Secret object with arangodb&trade; credentials (`auth.admin.password`, `auth.user.password`, `auth.readUser.password`, and `auth.writeUser.password` will be ignored and picked up from this secret)
+  ##
+  existingSecret: ""
+
+## arangodb&trade; backend parameters
+##
+arangodb:
+  ## @param arangodb.podAffinityPreset arangodb&trade; Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param arangodb.podAntiAffinityPreset arangodb&trade; Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node affinity preset
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param arangodb.nodeAffinityPreset.type arangodb&trade; Node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+    type: ""
+    ## @param arangodb.nodeAffinityPreset.key arangodb&trade; Node label key to match Ignored if `affinity` is set.
+    ## E.g.
+    ## key: "kubernetes.io/e2e-az-name"
+    ##
+    key: ""
+    ## @param arangodb.nodeAffinityPreset.values arangodb&trade; Node label values to match. Ignored if `affinity` is set.
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param arangodb.affinity arangodb&trade; Affinity for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## Note: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param arangodb.nodeSelector arangodb&trade; Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param arangodb.tolerations arangodb&trade; Tolerations for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param arangodb.podAnnotations Annotations for arangodb&trade; pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param arangodb.podLabels Extra labels for arangodb&trade; pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param arangodb.hostAliases arangodb&trade; pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param arangodb.updateStrategy.type arangodb&trade; statefulset/deployment strategy type
+  ## Statefulset ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  ## Deployment ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  ##
+  updateStrategy:
+    ## StrategyType
+    ## Can be set to RollingUpdate or OnDelete
+    ##
+    type: RollingUpdate
+  ## @param arangodb.priorityClassName arangodb&trade; pods' priorityClassName
+  ##
+  priorityClassName: ""
+  ## @param arangodb.schedulerName Name of the k8s scheduler (other than default)
+  ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ""
+  ## @param arangodb.topologySpreadConstraints Topology Spread Constraints for pod assignment
+  ## https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+  ## The value is evaluated as a template
+  ##
+  topologySpreadConstraints: []
+  ## @param arangodb.podManagementPolicy podManagementPolicy to manage scaling operation of arangodb&trade; pods
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  ##
+  podManagementPolicy: OrderedReady
+  ## arangodb&trade; pods' resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## We usually recommend not to specify default resources and to leave this as a conscious
+  ## choice for the user. This also increases chances charts run on environments with little
+  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  ## @param arangodb.resources.limits The resources limits for the container
+  ## @param arangodb.resources.requests The requested resources for the container
+  ##
+  resources:
+    ## Example:
+    ## limits:
+    ##    cpu: 100m
+    ##    memory: 128Mi
+    limits: {}
+    ## Examples:
+    ## requests:
+    ##    cpu: 100m
+    ##    memory: 128Mi
+    requests: {}
+  ## @param arangodb.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param arangodb.args Override default container args (useful when using custom images)
+  ##
+  args: []
+  ## @param arangodb.lifecycleHooks for the arangodb&trade; container(s) to automate configuration before or after startup
+  ##
+  lifecycleHooks: {}
+  ## @param arangodb.extraEnvVars Array containing extra env vars to configure arangodb&trade;
+  ## For example:
+  ## extraEnvVars:
+  ##  - name: arangodb_DATA_QUERY_LOG_ENABLED
+  ##    value: "true"
+  ##
+  extraEnvVars: []
+  ## @param arangodb.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for arangodb&trade; nodes
+  ##
+  extraEnvVarsCM: ""
+  ## @param arangodb.extraEnvVarsSecret Name of existing Secret containing extra env vars for arangodb&trade; nodes
+  ##
+  extraEnvVarsSecret: ""
+  ## @param arangodb.extraVolumes Array of extra volumes to be added to the deployment (evaluated as template). Requires setting extraVolumeMounts
+  ##
+  extraVolumes: []
+  ## @param arangodb.extraVolumeMounts Array of extra volume mounts to be added to the container (evaluated as template). Normally used with extraVolumes.
+  ##
+  extraVolumeMounts: []
+  ## @param arangodb.containerPorts.http arangodb&trade; container HTTP port
+  ## @param arangodb.containerPorts.rpc arangodb&trade; container RPC port
+  ##
+  containerPorts:
+    http: 8529
+
+  ## @param arangodb.initContainers Add additional init containers to the arangodb&trade; pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: []
+
+  ## Service parameters
+  ##
+  service:
+    ## @param arangodb.service.type Kubernetes service type (`ClusterIP`, `NodePort` or `LoadBalancer`)
+    ##
+    type: ClusterIP
+    ## @param arangodb.service.ports.http arangodb&trade; HTTP port
+    ##
+    ports:
+      http: 8086
+    ## @param arangodb.service.nodePorts [object] Specify the nodePort(s) value for the LoadBalancer and NodePort service types.
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+    ##
+    nodePorts:
+      http: ""
+    ## @param arangodb.service.loadBalancerIP loadBalancerIP if service type is `LoadBalancer`
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+    ##
+    loadBalancerIP: ""
+    ## @param arangodb.service.loadBalancerSourceRanges Address that are allowed when service is LoadBalancer
+    ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    ##
+    ## loadBalancerSourceRanges:
+    ## - 10.10.10.0/24
+    loadBalancerSourceRanges: []
+    ## @param arangodb.service.clusterIP Static clusterIP or None for headless services
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#choosing-your-own-ip-address
+    ## e.g:
+    ## clusterIP: None
+    ##
+    clusterIP: ""
+    ## @param arangodb.service.externalTrafficPolicy arangodb&trade; service external traffic policy
+    ## ref http://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    ##
+    externalTrafficPolicy: Cluster
+    ## @param arangodb.service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
+    ##
+    extraPorts: []
+    ## @param arangodb.service.annotations Annotations for arangodb&trade; service
+    ##
+    annotations: {}
+    ## @param arangodb.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+    ## If "ClientIP", consecutive client requests will be directed to the same Pod
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    ##
+    sessionAffinity: None
+    ## @param arangodb.service.sessionAffinityConfig Additional settings for the sessionAffinity
+    ## sessionAffinityConfig:
+    ##   clientIP:
+    ##     timeoutSeconds: 300
+    sessionAffinityConfig: {}
+
+## @section Exposing parameters
+
+## Configure the ingress resource that allows you to access the
+## arangodb installation. Set up the URL
+## ref: https://kubernetes.io/docs/user-guide/ingress/
+##
+ingress:
+  ## @param ingress.enabled Enable ingress controller resource
+  ##
+  enabled: false
+  ## @param ingress.tls Create TLS Secret
+  ## TLS certificates will be retrieved from a TLS secret with name: {{- printf "%s-tls" (tpl .Values.ingress.hostname .) }}
+  ## You can use the ingress.secrets parameter to create this TLS secret on cert-manager to create it
+  ##
+  tls: false
+  ## DEPRECATED: Use ingress.annotations instead of ingress.certManager
+  ## certManager: false
+  ##
+
+  ## @param ingress.pathType Ingress path type
+  ##
+  pathType: ImplementationSpecific
+  ## @param ingress.apiVersion Force Ingress API version (automatically detected if not set)
+  ##
+  apiVersion: ""
+  ## @param ingress.hostname Default host for the ingress resource (evaluated as template)
+  ##
+  hostname: arangodb.local
+  ## @param ingress.path Ingress path*' in order to use this
+  ## with ALB ingress controllers.
+  ##
+  path: /
+  ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+  ## For a full list of possible ingress annotations, please see
+  ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+  ## Use this parameter to set the required annotations for cert-manager, see
+  ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  ##
+  ## e.g:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+  ##
+  annotations: {}
+  ## @param ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
+  ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
+  ## extraHosts:
+  ## - name: arangodb.local
+  ##   path: /
+  ##
+  extraHosts: []
+  ## @param ingress.extraPaths Additional arbitrary path/backend objects
+  ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
+  ## extraPaths:
+  ## - path: /*
+  ##   backend:
+  ##     serviceName: ssl-redirect
+  ##     servicePort: use-annotation
+  ##
+  extraPaths: []
+  ## @param ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
+  ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+  ## extraTls:
+  ## - hosts:
+  ##     - arangodb.local
+  ##   secretName: arangodb.local-tls
+  ##
+  extraTls: []
+  ## @param ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
+  ## key and certificate should start with -----BEGIN CERTIFICATE----- or
+  ## -----BEGIN RSA PRIVATE KEY-----
+  ##
+  ## name should line up with a tlsSecret set further up
+  ## If you're using cert-manager, this is unneeded, as it will create the secret for you if it is not set
+  ##
+  ## It is also possible to create and manage the certificates outside of this helm chart
+  ## Please see README.md for more information
+  ## - name: arangodb.local-tls
+  ##   key:
+  ##   certificate:
+  ##
+  secrets: []
+  ## @param ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+  ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+  ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+  ##
+  ingressClassName: ""
+  ## @param ingress.extraRules Additional rules to be covered with this ingress record
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+  ## e.g:
+  ## extraRules:
+  ## - host: example.local
+  ##     http:
+  ##       path: /
+  ##       backend:
+  ##         service:
+  ##           name: example-svc
+  ##           port:
+  ##             name: http
+  ##
+  extraRules: []
+
+## Persistence parameters
+##
+persistence:
+  ## @param persistence.enabled Enable data persistence
+  ##
+  enabled: true
+  ## @param persistence.existingClaim Use a existing PVC which must be created manually before bound
+  ## If defined, PVC must be created manually before volume will be bound
+  ## The value is evaluated as a template
+  ##
+  existingClaim: ""
+  ## @param persistence.storageClass Specify the `storageClass` used to provision the volume
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ## set, choosing the default provisioner.
+  ##
+  storageClass: ""
+  ## @param persistence.accessModes Access mode of data volume
+  ##
+  accessModes:
+    - ReadWriteOnce
+  ## @param persistence.size Size of data volume
+  ##
+  dataSize: 50Gi
+  appDataSize: 30Gi
+  ## @param persistence.annotations Persistent Volume Claim annotations
+  ##
+  annotations: {}

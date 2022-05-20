@@ -1,0 +1,20 @@
+annotations:
+  category: Database
+apiVersion: v2
+appVersion: 3.9
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
+description: ArangoDB is a free and open-source native multi-model database system developed by ArangoDB GmbH.
+keywords:
+  - arango
+  - database
+  - graph
+maintainers:
+  - email: julian.klaiber@ost.ch
+    name: Julian Klaiber
+name: arangodb
+version: 1.0.0

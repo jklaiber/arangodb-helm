@@ -1,0 +1,119 @@
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: arangodb
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  {{- if .Values.arangodb.updateStrategy }}
+  strategy: {{- toYaml .Values.arangodb.updateStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: arangodb
+  template:
+    metadata:
+      {{- if .Values.arangodb.podAnnotations }}
+      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: arangodb
+        {{- if .Values.arangodb.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.arangodb.hostAliases }}
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.hostAliases "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.arangodb.affinity }}
+      affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.arangodb.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.arangodb.podAffinityPreset "component" "arangodb" "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.arangodb.podAntiAffinityPreset "component" "arangodb" "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.arangodb.nodeAffinityPreset.type "key" .Values.arangodb.nodeAffinityPreset.key "values" .Values.arangodb.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.arangodb.schedulerName }}
+      schedulerName: {{ .Values.arangodb.schedulerName }}
+      {{- end }}
+      {{- if .Values.arangodb.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.topologySpreadConstraints "context" .) | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ .Values.arangodb.priorityClassName | quote }}
+      {{- if .Values.arangodb.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.arangodb.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.arangodb.initContainers }}
+      initContainers:
+        {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.initContainers "context" $) | trim | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: arangodb
+          image: {{ include "arangodb.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          {{- if .Values.arangodb.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.arangodb.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.args "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.arangodb.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: ARANGO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "arangodb.secretName" . }}
+                  key: root-user-password
+          ports:
+            - name: http
+              containerPort: {{ .Values.arangodb.containerPorts.http }}
+              protocol: TCP
+          {{- if .Values.arangodb.resources }}
+          resources: {{- toYaml .Values.arangodb.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: /var/lib/arangodb3
+            - name: appdata
+              mountPath: /var/lib/arangodb3-apps
+            {{- end }}
+          {{- if .Values.arangodb.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+      volumes:
+        {{- if .Values.auth.usePasswordFiles }}
+        - name: arangodb-credentials
+          secret:
+            secretName: {{ include "arangodb.secretName" . }}
+        {{- end }}
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: "{{ include "arangodb.claimName" . }}-data"
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: appdata
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: "{{ include "arangodb.claimName" . }}-appdata"
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- if .Values.arangodb.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.arangodb.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
